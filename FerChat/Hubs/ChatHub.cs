@@ -1,40 +1,59 @@
 ﻿using FerChat.Data;
 using FerChat.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
 namespace SignalRChat.Hubs {
     public class ChatHub : Hub {
         private readonly FerChatDbContext _context;
+        private readonly ILogger<ChatHub> _logger;
 
-        public ChatHub(FerChatDbContext context) {
+        public ChatHub(FerChatDbContext context, ILogger<ChatHub> logger) {
             _context = context;
+            _logger = logger;
         }
 
-        public async Task SendMessage(string user, string message) {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+        public async Task JoinChatRoom(Guid chatRoomId) {
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"ChatRoom:{chatRoomId}");
+        }
 
-            Guid chatRoomId = Guid.Parse("3c59801f-617d-4329-9973-00b686e4b4ad");
-            var chatRoom = await _context.ChatRooms.FindAsync(chatRoomId);
+        public async Task LeaveChatRoom(Guid chatRoomId) {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"ChatRoom:{chatRoomId}");
+        }
 
-            if (chatRoom == null) {
-                chatRoom = new ChatRoom {
-                    Id = chatRoomId,
-                    Name = "Chat Room #1"
-                };
+        public async Task SendMessage(Guid chatRoomId, string user, string message) {
+            try {
+                await Clients.Group($"ChatRoom:{chatRoomId}").SendAsync("ReceiveMessage", user, message);
+            } catch (Exception ex) {
+                _logger.LogWarning(ex, "Could not send chat message via SignalR - discarding");
+                return;
             }
 
-            _context.ChatMessages.Add(new ChatMessage {
-                Id = Guid.NewGuid(),
-                ChatRoom = chatRoom,
-                User = new User {
+            try {
+                var chatRoom = await _context.ChatRooms.FindAsync(chatRoomId);
+
+                if (chatRoom == null) {
+                    chatRoom = new ChatRoom {
+                        Id = chatRoomId,
+                        Name = "Chat Room #1"
+                    };
+                }
+
+                _context.ChatMessages.Add(new ChatMessage {
                     Id = Guid.NewGuid(),
-                    Name = user
-                },
-                TextContent = message
-            });
-            await _context.SaveChangesAsync();
+                    ChatRoom = chatRoom,
+                    User = new User {
+                        Id = Guid.NewGuid(),
+                        Name = user
+                    },
+                    TextContent = message
+                });
+                await _context.SaveChangesAsync();
+            } catch (Exception ex) {
+                _logger.LogWarning(ex, "Could not save chat message to database");
+            }
         }
     }
 }
