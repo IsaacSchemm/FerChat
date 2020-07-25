@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace SignalRChat.Hubs {
     public class ChatHub : Hub {
-        private readonly FerChatDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<ChatHub> _logger;
 
-        public ChatHub(FerChatDbContext context, ILogger<ChatHub> logger) {
+        public ChatHub(ApplicationDbContext context, ILogger<ChatHub> logger) {
             _context = context;
             _logger = logger;
         }

@@ -11,13 +11,13 @@ using Microsoft.Extensions.Logging;
 
 namespace FerChat.Pages {
     public class IndexModel : PageModel {
-        private readonly FerChatDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<IndexModel> _logger;
 
         public Guid ChatRoomId { get; set; }
-        public IEnumerable<ChatMessage> ChatMessages { get; set; }
+        public IEnumerable<ChatMessage> ChatMessages { get; set; } = Enumerable.Empty<ChatMessage>();
 
-        public IndexModel(FerChatDbContext context, ILogger<IndexModel> logger) {
+        public IndexModel(ApplicationDbContext context, ILogger<IndexModel> logger) {
             _context = context;
             _logger = logger;
         }
