@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FerChat.Models {
@@ -7,14 +9,17 @@ namespace FerChat.Models {
 
         public Guid ChatRoomId { get; set; }
 
-        public Guid UserId { get; set; }
+        [Required]
+        public string UserId { get; set; }
 
         public string TextContent { get; set; }
+
+        public DateTimeOffset Timestamp { get; set; }
 
         [ForeignKey(nameof(ChatRoomId))]
         public ChatRoom ChatRoom { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public User User { get; set; }
+        public IdentityUser User { get; set; }
     }
 }

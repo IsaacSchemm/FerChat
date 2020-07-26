@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FerChat.Data.Migrations
 {
-    public partial class AddChatTables : Migration
+    public partial class ChatTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -20,25 +20,14 @@ namespace FerChat.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ChatMessages",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
                     ChatRoomId = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
-                    TextContent = table.Column<string>(nullable: true)
+                    UserId = table.Column<string>(nullable: false),
+                    TextContent = table.Column<string>(nullable: true),
+                    Timestamp = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,9 +39,9 @@ namespace FerChat.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChatMessages_User_UserId",
+                        name: "FK_ChatMessages_AspNetUsers_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -75,9 +64,6 @@ namespace FerChat.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ChatRooms");
-
-            migrationBuilder.DropTable(
-                name: "User");
         }
     }
 }

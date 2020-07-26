@@ -1,17 +1,22 @@
 ﻿using FerChat.Data;
 using FerChat.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
 namespace SignalRChat.Hubs {
+    [Authorize]
     public class ChatHub : Hub {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<ChatHub> _logger;
 
-        public ChatHub(ApplicationDbContext context, ILogger<ChatHub> logger) {
+        public ChatHub(ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<ChatHub> logger) {
             _context = context;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -44,11 +49,9 @@ namespace SignalRChat.Hubs {
                 _context.ChatMessages.Add(new ChatMessage {
                     Id = Guid.NewGuid(),
                     ChatRoom = chatRoom,
-                    User = new User {
-                        Id = Guid.NewGuid(),
-                        Name = user
-                    },
-                    TextContent = message
+                    UserId = _userManager.GetUserId(Context.User),
+                    TextContent = message,
+                    Timestamp = DateTimeOffset.UtcNow
                 });
                 await _context.SaveChangesAsync();
             } catch (Exception ex) {

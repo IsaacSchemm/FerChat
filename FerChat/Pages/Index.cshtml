@@ -27,7 +27,7 @@
     <div class="col-6">
         <ul id="messagesList">
             @foreach (var message in Model.ChatMessages) {
-                <li>@message.User.Name says @message.TextContent</li>
+                <li>@message.User.UserName says @message.TextContent</li>
             }
         </ul>
     </div>

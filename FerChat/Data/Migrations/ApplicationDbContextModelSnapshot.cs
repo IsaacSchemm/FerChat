@@ -31,8 +31,12 @@ namespace FerChat.Data.Migrations
                     b.Property<string>("TextContent")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -55,20 +59,6 @@ namespace FerChat.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ChatRooms");
-                });
-
-            modelBuilder.Entity("FerChat.Models.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -279,7 +269,7 @@ namespace FerChat.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FerChat.Models.User", "User")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
