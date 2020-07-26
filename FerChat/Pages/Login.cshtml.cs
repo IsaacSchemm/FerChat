@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FerChat.Pages {
@@ -22,14 +23,23 @@ namespace FerChat.Pages {
 
         public async Task<IActionResult> OnGetAsync(Guid chatRoomId) {
             try {
-                Guid userId = Request.Headers["User-Agent"].Any(x => x.Contains("Firefox"))
-                    ? Guid.Parse("6a3614bc-1c99-4592-b04c-21c93abaf88b")
-                    : Guid.Parse("1f5e245c-d373-4bf4-9dc6-649e3b6bd48e");
+                Guid userId = Guid.NewGuid();
                 var user = await _context.Users.FindAsync(userId);
                 if (user == null) {
-                    user = new Models.User {
+                    var room = await _context.ChatRooms
+                        .Where(r => r.Id == chatRoomId)
+                        .SingleOrDefaultAsync();
+                    if (room == null) {
+                        room = new Models.ChatRoom {
+                            Id = chatRoomId,
+                            Name = $"{chatRoomId}"
+                        };
+                    }
+
+                    user = new Models.ChatRoomParticipant {
                         Id = userId,
-                        Name = $"User {userId}"
+                        ChatRoom = room,
+                        Name = Request.Headers["User-Agent"]
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -40,7 +50,7 @@ namespace FerChat.Pages {
                 var claims = User.Claims
                     .Where(x => x.Type != $"Room{chatRoomId}")
                     .Concat(new[] {
-                    new Claim($"Room{chatRoomId}", userId.ToString())
+                        new Claim($"Room{chatRoomId}", userId.ToString())
                     })
                     .ToList();
                 var claimsIdentity = new ClaimsIdentity(

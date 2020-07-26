@@ -65,9 +65,9 @@ namespace SignalRChat.Hubs {
 
                     _context.ChatMessages.Add(new ChatMessage {
                         Id = Guid.NewGuid(),
-                        ChatRoom = chatRoom,
                         UserId = userId,
-                        TextContent = message
+                        TextContent = message,
+                        Timestamp = DateTimeOffset.UtcNow
                     });
                     await _context.SaveChangesAsync();
                 } catch (Exception ex) {

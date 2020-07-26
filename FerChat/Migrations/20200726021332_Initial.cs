@@ -24,11 +24,18 @@ namespace FerChat.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
+                    ChatRoomId = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_ChatRooms_ChatRoomId",
+                        column: x => x.ChatRoomId,
+                        principalTable: "ChatRooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -36,19 +43,13 @@ namespace FerChat.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    ChatRoomId = table.Column<Guid>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false),
-                    TextContent = table.Column<string>(nullable: true)
+                    TextContent = table.Column<string>(nullable: true),
+                    Timestamp = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ChatMessages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChatMessages_ChatRooms_ChatRoomId",
-                        column: x => x.ChatRoomId,
-                        principalTable: "ChatRooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ChatMessages_Users_UserId",
                         column: x => x.UserId,
@@ -58,14 +59,14 @@ namespace FerChat.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatMessages_ChatRoomId",
-                table: "ChatMessages",
-                column: "ChatRoomId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ChatMessages_UserId",
                 table: "ChatMessages",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_ChatRoomId",
+                table: "Users",
+                column: "ChatRoomId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -74,10 +75,10 @@ namespace FerChat.Migrations
                 name: "ChatMessages");
 
             migrationBuilder.DropTable(
-                name: "ChatRooms");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "ChatRooms");
         }
     }
 }

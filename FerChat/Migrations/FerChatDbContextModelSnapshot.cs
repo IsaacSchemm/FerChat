@@ -25,18 +25,16 @@ namespace FerChat.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ChatRoomId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("TextContent")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ChatRoomId");
 
                     b.HasIndex("UserId");
 
@@ -57,31 +55,40 @@ namespace FerChat.Migrations
                     b.ToTable("ChatRooms");
                 });
 
-            modelBuilder.Entity("FerChat.Models.User", b =>
+            modelBuilder.Entity("FerChat.Models.ChatRoomParticipant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ChatRoomId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChatRoomId");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("FerChat.Models.ChatMessage", b =>
                 {
+                    b.HasOne("FerChat.Models.ChatRoomParticipant", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FerChat.Models.ChatRoomParticipant", b =>
+                {
                     b.HasOne("FerChat.Models.ChatRoom", "ChatRoom")
                         .WithMany()
                         .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FerChat.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

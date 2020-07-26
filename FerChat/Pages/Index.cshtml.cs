@@ -40,7 +40,8 @@ namespace FerChat.Pages {
                 ChatRoomId = chatRoomId;
                 ChatMessages = await _context.ChatMessages
                     .Include(m => m.User)
-                    .Where(m => m.ChatRoomId == chatRoomId)
+                    .Where(m => m.User.ChatRoomId == chatRoomId)
+                    .OrderBy(m => m.Timestamp)
                     .ToListAsync();
             } catch (Exception ex) {
                 _logger.LogWarning(ex, $"Could not load existing chat messages for chat room {chatRoomId}");
