@@ -51,7 +51,16 @@ namespace SignalRChat.Hubs {
                     .Select(u => u.Name)
                     .SingleAsync();
 
-                await Clients.Group($"ChatRoom:{chatRoomId}").SendAsync("ReceiveMessage", name, message);
+                Guid id = Guid.NewGuid();
+                await Clients.Group($"ChatRoom:{chatRoomId}").SendAsync("ReceiveMessage", new {
+                    Id = id,
+                    TextContent = message,
+                    Timestamp = DateTimeOffset.UtcNow,
+                    User = new {
+                        Id = userId,
+                        Name = name
+                    }
+                });
 
                 try {
                     var chatRoom = await _context.ChatRooms.FindAsync(chatRoomId);
@@ -64,7 +73,7 @@ namespace SignalRChat.Hubs {
                     }
 
                     _context.ChatMessages.Add(new ChatMessage {
-                        Id = Guid.NewGuid(),
+                        Id = id,
                         UserId = userId,
                         TextContent = message,
                         Timestamp = DateTimeOffset.UtcNow

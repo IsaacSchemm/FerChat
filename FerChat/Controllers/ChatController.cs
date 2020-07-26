@@ -1,27 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using FerChat.Data;
-using FerChat.Models;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using FerChat.Models;
+using FerChat.Data;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
-namespace FerChat.Pages {
-    public class ChatRoomModel : PageModel {
+namespace FerChat.Controllers {
+    public class ChatController : Controller {
         private readonly FerChatDbContext _context;
-        private readonly ILogger<ChatRoomModel> _logger;
+        private readonly ILogger<HomeController> _logger;
 
-        public Guid ChatRoomId { get; set; }
-        public IEnumerable<ChatMessage> ChatMessages { get; set; } = Enumerable.Empty<ChatMessage>();
-
-        public ChatRoomModel(FerChatDbContext context, ILogger<ChatRoomModel> logger) {
+        public ChatController(FerChatDbContext context, ILogger<HomeController> logger) {
             _context = context;
             _logger = logger;
         }
 
-        public async Task OnGetAsync(Guid chatRoomId) {
+        public ActionResult Index() {
+            return View();
+        }
+
+        public async Task<IActionResult> Messages(Guid chatRoomId) {
             try {
                 Guid userId = User.Claims
                     .Where(x => x.Type == $"Room{chatRoomId}")
@@ -36,14 +41,23 @@ namespace FerChat.Pages {
                 if (!authorized)
                     throw new Exception($"User is not logged into chat room {chatRoomId}");
 
-                ChatRoomId = chatRoomId;
-                ChatMessages = await _context.ChatMessages
+                return Ok(await _context.ChatMessages
                     .Include(m => m.User)
                     .Where(m => m.User.ChatRoomId == chatRoomId)
                     .OrderBy(m => m.Timestamp)
-                    .ToListAsync();
+                    .Select(m => new {
+                        m.Id,
+                        m.TextContent,
+                        m.Timestamp,
+                        User = new {
+                            m.User.Id,
+                            m.User.Name
+                        }
+                    })
+                    .ToListAsync());
             } catch (Exception ex) {
                 _logger.LogWarning(ex, $"Could not load existing chat messages for chat room {chatRoomId}");
+                return StatusCode(500);
             }
         }
     }
