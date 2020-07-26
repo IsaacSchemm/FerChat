@@ -8,7 +8,6 @@ using FerChat.Data;
 using FerChat.Models;
 
 namespace FerChat.Controllers {
-    [Route("api/[controller]")]
     [ApiController]
     [BasicAuthentication]
     public class ChatRoomParticipantsController : ControllerBase {
@@ -18,16 +17,21 @@ namespace FerChat.Controllers {
             _context = context;
         }
 
-        // GET: api/ChatRoomParticipants
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ChatRoomParticipant>>> GetChatRoomParticipants() {
-            return await _context.ChatRoomParticipants.ToListAsync();
+        [Route("api/rooms/{roomId}/participants")]
+        public async Task<ActionResult<IEnumerable<ChatRoomParticipant>>> GetChatRoomParticipants(Guid roomId) {
+            return await _context.ChatRoomParticipants
+                .Where(p => p.ChatRoomId == roomId)
+                .ToListAsync();
         }
 
-        // GET: api/ChatRoomParticipants/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChatRoomParticipant>> GetChatRoomParticipant(Guid id) {
-            var chatRoomParticipant = await _context.ChatRoomParticipants.FindAsync(id);
+        [HttpGet]
+        [Route("api/rooms/{roomId}/participants/{id}")]
+        public async Task<ActionResult<ChatRoomParticipant>> GetChatRoomParticipant(Guid roomId, Guid id) {
+            var chatRoomParticipant = await _context.ChatRoomParticipants
+                .Where(p => p.ChatRoomId == roomId)
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
 
             if (chatRoomParticipant == null) {
                 return NotFound();
@@ -36,45 +40,42 @@ namespace FerChat.Controllers {
             return chatRoomParticipant;
         }
 
-        // PUT: api/ChatRoomParticipants/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutChatRoomParticipant(Guid id, ChatRoomParticipant chatRoomParticipant) {
-            if (id != chatRoomParticipant.Id) {
-                return BadRequest();
+        [HttpPut]
+        [Route("api/rooms/{roomId}/participants/{id}")]
+        public async Task<IActionResult> PutChatRoomParticipant(Guid roomId, Guid id, ChatRoomParticipant newProperties) {
+            var chatRoomParticipant = await _context.ChatRoomParticipants
+                .Where(p => p.ChatRoomId == roomId)
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
+
+            if (chatRoomParticipant == null) {
+                return NotFound();
             }
 
-            _context.Entry(chatRoomParticipant).State = EntityState.Modified;
-
-            try {
-                await _context.SaveChangesAsync();
-            } catch (DbUpdateConcurrencyException) {
-                if (!ChatRoomParticipantExists(id)) {
-                    return NotFound();
-                } else {
-                    throw;
-                }
-            }
+            chatRoomParticipant.Name = newProperties.Name;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // POST: api/ChatRoomParticipants
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<ChatRoomParticipant>> PostChatRoomParticipant(ChatRoomParticipant chatRoomParticipant) {
+        [Route("api/rooms/{roomId}/participants")]
+        public async Task<ActionResult<ChatRoomParticipant>> PostChatRoomParticipant(Guid roomId, ChatRoomParticipant chatRoomParticipant) {
+            chatRoomParticipant.ChatRoomId = roomId;
             _context.ChatRoomParticipants.Add(chatRoomParticipant);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetChatRoomParticipant", new { id = chatRoomParticipant.Id }, chatRoomParticipant);
+            return CreatedAtAction("GetChatRoomParticipant", new { roomId, id = chatRoomParticipant.Id }, chatRoomParticipant);
         }
 
-        // DELETE: api/ChatRoomParticipants/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<ChatRoomParticipant>> DeleteChatRoomParticipant(Guid id) {
-            var chatRoomParticipant = await _context.ChatRoomParticipants.FindAsync(id);
+        [HttpDelete]
+        [Route("api/rooms/{roomId}/participants/{id}")]
+        public async Task<ActionResult<ChatRoomParticipant>> DeleteChatRoomParticipant(Guid roomId, Guid id) {
+            var chatRoomParticipant = await _context.ChatRoomParticipants
+                .Where(p => p.ChatRoomId == roomId)
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
+
             if (chatRoomParticipant == null) {
                 return NotFound();
             }
@@ -83,10 +84,6 @@ namespace FerChat.Controllers {
             await _context.SaveChangesAsync();
 
             return chatRoomParticipant;
-        }
-
-        private bool ChatRoomParticipantExists(Guid id) {
-            return _context.ChatRoomParticipants.Any(e => e.Id == id);
         }
     }
 }

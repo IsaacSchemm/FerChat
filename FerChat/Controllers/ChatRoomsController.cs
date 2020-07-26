@@ -9,7 +9,6 @@ using FerChat.Models;
 
 namespace FerChat.Controllers {
     [ApiController]
-    [Route("api/[controller]")]
     [BasicAuthentication]
     public class ChatRoomsController : ControllerBase {
         private readonly FerChatDbContext _context;
@@ -18,14 +17,14 @@ namespace FerChat.Controllers {
             _context = context;
         }
 
-        // GET: api/ChatRooms
         [HttpGet]
+        [Route("api/rooms")]
         public async Task<ActionResult<IEnumerable<ChatRoom>>> GetChatRooms() {
             return await _context.ChatRooms.ToListAsync();
         }
 
-        // GET: api/ChatRooms/5
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("api/rooms/{id}")]
         public async Task<ActionResult<ChatRoom>> GetChatRoom(Guid id) {
             var chatRoom = await _context.ChatRooms.FindAsync(id);
 
@@ -36,10 +35,8 @@ namespace FerChat.Controllers {
             return chatRoom;
         }
 
-        // PUT: api/ChatRooms/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("api/rooms/{id}")]
         public async Task<IActionResult> PutChatRoom(Guid id, ChatRoom chatRoom) {
             if (id != chatRoom.Id) {
                 return BadRequest();
@@ -60,10 +57,8 @@ namespace FerChat.Controllers {
             return NoContent();
         }
 
-        // POST: api/ChatRooms
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
+        [Route("api/rooms")]
         public async Task<ActionResult<ChatRoom>> PostChatRoom(ChatRoom chatRoom) {
             _context.ChatRooms.Add(chatRoom);
             await _context.SaveChangesAsync();
@@ -71,8 +66,8 @@ namespace FerChat.Controllers {
             return CreatedAtAction("GetChatRoom", new { id = chatRoom.Id }, chatRoom);
         }
 
-        // DELETE: api/ChatRooms/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("api/rooms/{id}")]
         public async Task<ActionResult<ChatRoom>> DeleteChatRoom(Guid id) {
             var chatRoom = await _context.ChatRooms.FindAsync(id);
             if (chatRoom == null) {
