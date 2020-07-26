@@ -15,7 +15,7 @@ namespace FerChat.Pages {
         private readonly ILogger<IndexModel> _logger;
 
         public Guid ChatRoomId { get; set; }
-        public IEnumerable<ChatMessage> ChatMessages { get; set; }
+        public IEnumerable<ChatMessage> ChatMessages { get; set; } = Enumerable.Empty<ChatMessage>();
 
         public IndexModel(FerChatDbContext context, ILogger<IndexModel> logger) {
             _context = context;
@@ -24,6 +24,19 @@ namespace FerChat.Pages {
 
         public async Task OnGetAsync(Guid chatRoomId) {
             try {
+                Guid userId = User.Claims
+                    .Where(x => x.Type == $"Room{chatRoomId}")
+                    .Select(x => x.Value)
+                    .Select(Guid.Parse)
+                    .Single();
+
+                bool authorized = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => u.Name)
+                    .AnyAsync();
+                if (!authorized)
+                    throw new Exception($"User is not logged into chat room {chatRoomId}");
+
                 ChatRoomId = chatRoomId;
                 ChatMessages = await _context.ChatMessages
                     .Include(m => m.User)

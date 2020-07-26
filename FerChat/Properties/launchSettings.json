@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "?chatRoomId=3c59801f-617d-4329-9973-00b686e4b4ad",
+      "launchUrl": "login?chatRoomId=3c59801f-617d-4329-9973-00b686e4b4ad",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
