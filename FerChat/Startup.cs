@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using FerChat.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +21,8 @@ namespace FerChat {
 
         public IConfiguration Configuration { get; }
 
+        public static NetworkCredential ApiCredentials { get; private set; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<FerChatDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -29,6 +31,10 @@ namespace FerChat {
 
             services.AddControllersWithViews();
             services.AddSignalR();
+
+            ApiCredentials = new NetworkCredential(
+                userName: Configuration.GetSection("ApiCredentials")["Username"],
+                password: Configuration.GetSection("ApiCredentials")["Password"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
