@@ -34,13 +34,24 @@
             }
         </table>
     </div>
+    <div class="main">
+        <table data-bind="foreach: chatMessages">
+            <tr>
+                <td>
+                    <div class="name" data-bind="text: user"></div>
+                    <div class="content" data-bind="text: message"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div class="entry">
-        <textarea id="messageInput"></textarea>
-        <button id="sendButton">Send Message</button>
+        <textarea id="messageInput" data-bind="textInput: textEntry"></textarea>
+        <button id="sendButton" data-bind="click: send">Send Message</button>
     </div>
 </div>
 
 <input id="chatRoomId" type="hidden" value="@Model.ChatRoomId" />
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/knockout/build/output/knockout-latest.js"></script>
 <script src="~/js/chat.js"></script>

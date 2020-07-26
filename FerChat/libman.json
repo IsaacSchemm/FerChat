@@ -55,6 +55,16 @@
         "jquery.validate.unobtrusive.min.js",
         "jquery.validate.unobtrusive.js"
       ]
+    },
+    {
+      "library": "knockout@3.5.1",
+      "destination": "wwwroot/lib/knockout/",
+      "files": [
+        "LICENSE",
+        "build/types/knockout.d.ts",
+        "build/output/knockout-latest.js",
+        "build/output/knockout-latest.debug.js"
+      ]
     }
   ]
 }
