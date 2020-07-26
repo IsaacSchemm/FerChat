@@ -3,3 +3,6 @@ bin
 obj
 
 *.user
+
+FerChat/wwwroot/js/*.js
+FerChat/wwwroot/js/*.js.map

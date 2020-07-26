@@ -1,7 +1,12 @@
+﻿declare var signalR: any;
+
 var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
 //Disable send button until connection is established
-document.getElementById("sendButton").disabled = true;
-var chatRoomId = document.getElementById("chatRoomId").value;
+(document.getElementById("sendButton") as HTMLButtonElement).disabled = true;
+
+var chatRoomId = (document.getElementById("chatRoomId") as HTMLInputElement).value;
+
 connection.on("ReceiveMessage", function (user, message) {
     var table = document.querySelector("#chatBox .main table");
     var tr = document.createElement("tr");
@@ -17,20 +22,21 @@ connection.on("ReceiveMessage", function (user, message) {
     content.innerText = message;
     td.appendChild(content);
 });
+
 connection.start().then(function () {
     connection.invoke("joinChatRoom", chatRoomId).then(function () {
-        document.getElementById("sendButton").disabled = false;
-    }).catch(function (err) {
+        (document.getElementById("sendButton") as HTMLButtonElement).disabled = false;
+    }).catch (function (err) {
         return console.error(err.toString());
     });
 }).catch(function (err) {
     return console.error(err.toString());
 });
+
 document.getElementById("sendButton").addEventListener("click", function (event) {
-    var message = document.getElementById("messageInput").value;
+    var message = (document.getElementById("messageInput") as HTMLInputElement).value;
     connection.invoke("SendMessage", chatRoomId, message).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
 });
-//# sourceMappingURL=chat.js.map
