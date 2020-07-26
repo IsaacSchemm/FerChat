@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FerChat.Data {
     public class FerChatDbContext : DbContext {
-        public DbSet<ChatRoomParticipant> Users { get; set; }
+        public DbSet<ChatRoomParticipant> ChatRoomParticipants { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
 

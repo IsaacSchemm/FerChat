@@ -34,7 +34,7 @@ namespace FerChat.Controllers {
                     .Select(Guid.Parse)
                     .Single();
 
-                bool authorized = await _context.Users
+                bool authorized = await _context.ChatRoomParticipants
                     .Where(u => u.Id == userId)
                     .Select(u => u.Name)
                     .AnyAsync();

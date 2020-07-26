@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FerChat.Migrations
 {
     [DbContext(typeof(FerChatDbContext))]
-    [Migration("20200726021332_Initial")]
+    [Migration("20200726165301_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,7 +74,7 @@ namespace FerChat.Migrations
 
                     b.HasIndex("ChatRoomId");
 
-                    b.ToTable("Users");
+                    b.ToTable("ChatRoomParticipants");
                 });
 
             modelBuilder.Entity("FerChat.Models.ChatMessage", b =>

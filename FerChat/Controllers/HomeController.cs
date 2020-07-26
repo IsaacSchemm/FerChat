@@ -22,8 +22,18 @@ namespace FerChat.Controllers {
             _logger = logger;
         }
 
-        public IActionResult Index() {
-            return View();
+        public async Task<IActionResult> Index() {
+            var participants = new List<ChatRoomParticipant>();
+            foreach (var c in User.Claims) {
+                if (Guid.TryParse(c.Value, out Guid g)) {
+                    participants.Add(await _context.ChatRoomParticipants
+                        .Include(p => p.ChatRoom)
+                        .Where(p => p.Id == g)
+                        .SingleAsync());
+                }
+            }
+
+            return View(participants);
         }
 
         public IActionResult Privacy() {
@@ -33,7 +43,7 @@ namespace FerChat.Controllers {
         public async Task<IActionResult> Login(Guid chatRoomId) {
             try {
                 Guid userId = Guid.NewGuid();
-                var user = await _context.Users.FindAsync(userId);
+                var user = await _context.ChatRoomParticipants.FindAsync(userId);
                 if (user == null) {
                     var room = await _context.ChatRooms
                         .Where(r => r.Id == chatRoomId)
@@ -50,7 +60,7 @@ namespace FerChat.Controllers {
                         ChatRoom = room,
                         Name = Request.Headers["User-Agent"]
                     };
-                    _context.Users.Add(user);
+                    _context.ChatRoomParticipants.Add(user);
                     await _context.SaveChangesAsync();
                 }
                 if (user == null)

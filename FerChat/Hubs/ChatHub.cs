@@ -24,7 +24,7 @@ namespace SignalRChat.Hubs {
                 .Select(Guid.Parse)
                 .Single();
 
-            bool authorized = await _context.Users
+            bool authorized = await _context.ChatRoomParticipants
                 .Where(u => u.Id == userId)
                 .Select(u => u.Name)
                 .AnyAsync();
@@ -46,7 +46,7 @@ namespace SignalRChat.Hubs {
                     .Select(Guid.Parse)
                     .Single();
 
-                string name = await _context.Users
+                string name = await _context.ChatRoomParticipants
                     .Where(u => u.Id == userId)
                     .Select(u => u.Name)
                     .SingleAsync();

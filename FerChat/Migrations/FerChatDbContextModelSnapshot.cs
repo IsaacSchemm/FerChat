@@ -72,7 +72,7 @@ namespace FerChat.Migrations
 
                     b.HasIndex("ChatRoomId");
 
-                    b.ToTable("Users");
+                    b.ToTable("ChatRoomParticipants");
                 });
 
             modelBuilder.Entity("FerChat.Models.ChatMessage", b =>

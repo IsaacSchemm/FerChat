@@ -20,7 +20,7 @@ namespace FerChat.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "ChatRoomParticipants",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -29,9 +29,9 @@ namespace FerChat.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_ChatRoomParticipants", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_ChatRooms_ChatRoomId",
+                        name: "FK_ChatRoomParticipants_ChatRooms_ChatRoomId",
                         column: x => x.ChatRoomId,
                         principalTable: "ChatRooms",
                         principalColumn: "Id",
@@ -51,9 +51,9 @@ namespace FerChat.Migrations
                 {
                     table.PrimaryKey("PK_ChatMessages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChatMessages_Users_UserId",
+                        name: "FK_ChatMessages_ChatRoomParticipants_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "ChatRoomParticipants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -64,8 +64,8 @@ namespace FerChat.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_ChatRoomId",
-                table: "Users",
+                name: "IX_ChatRoomParticipants_ChatRoomId",
+                table: "ChatRoomParticipants",
                 column: "ChatRoomId");
         }
 
@@ -75,7 +75,7 @@ namespace FerChat.Migrations
                 name: "ChatMessages");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "ChatRoomParticipants");
 
             migrationBuilder.DropTable(
                 name: "ChatRooms");
