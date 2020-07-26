@@ -8,11 +8,19 @@ document.getElementById("sendButton").disabled = true;
 var chatRoomId = document.getElementById("chatRoomId").value;
 
 connection.on("ReceiveMessage", function (user, message) {
-    var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var encodedMsg = user + " says " + msg;
-    var li = document.createElement("li");
-    li.textContent = encodedMsg;
-    document.getElementById("messagesList").appendChild(li);
+    var table = document.querySelector("#chatBox .main table");
+    var tr = document.createElement("tr");
+    table.appendChild(tr);
+    var td = document.createElement("td");
+    tr.appendChild(td);
+    var name = document.createElement("div");
+    name.className = "name";
+    name.innerText = user;
+    td.appendChild(name);
+    var content = document.createElement("div");
+    content.className = "content";
+    content.innerText = message;
+    td.appendChild(content);
 });
 
 connection.start().then(function () {
@@ -26,7 +34,6 @@ connection.start().then(function () {
 });
 
 document.getElementById("sendButton").addEventListener("click", function (event) {
-    var user = document.getElementById("userInput").value;
     var message = document.getElementById("messageInput").value;
     connection.invoke("SendMessage", chatRoomId, message).catch(function (err) {
         return console.error(err.toString());

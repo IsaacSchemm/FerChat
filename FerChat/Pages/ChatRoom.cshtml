@@ -1,0 +1,46 @@
+﻿@page
+@model ChatRoomModel
+
+<style type="text/css">
+    #chatBox {
+        display: flex;
+        flex-direction: column;
+    }
+
+        #chatBox .main {
+            flex: 1 1 auto;
+            overflow-y: scroll;
+        }
+
+        #chatBox .main .name {
+            font-weight: bold;
+        }
+
+        #chatBox .entry {
+            flex: 0 0 auto;
+        }
+</style>
+
+<div id="chatBox" style="width: 400px; height: 500px">
+    <div class="main">
+        <table>
+             @foreach (var message in Model.ChatMessages) {
+                <tr>
+                    <td>
+                        <div class="name">@message.User.Name</div>
+                        <div class="content">@message.TextContent</div>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="entry">
+        <textarea id="messageInput"></textarea>
+        <button id="sendButton">Send Message</button>
+    </div>
+</div>
+
+<input id="chatRoomId" type="hidden" value="@Model.ChatRoomId" />
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>

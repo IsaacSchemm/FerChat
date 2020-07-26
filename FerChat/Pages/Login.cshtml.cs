@@ -59,7 +59,7 @@ namespace FerChat.Pages {
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity));
-                return Redirect($"/?chatRoomId={chatRoomId}");
+                return Redirect($"chatRoom/?chatRoomId={chatRoomId}");
             } catch (Exception ex) {
                 _logger.LogError(ex, "Could not log user in");
                 return Page();

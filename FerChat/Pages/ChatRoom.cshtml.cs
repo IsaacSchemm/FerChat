@@ -4,20 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using FerChat.Data;
 using FerChat.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FerChat.Pages {
-    public class IndexModel : PageModel {
+    public class ChatRoomModel : PageModel {
         private readonly FerChatDbContext _context;
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<ChatRoomModel> _logger;
 
         public Guid ChatRoomId { get; set; }
         public IEnumerable<ChatMessage> ChatMessages { get; set; } = Enumerable.Empty<ChatMessage>();
 
-        public IndexModel(FerChatDbContext context, ILogger<IndexModel> logger) {
+        public ChatRoomModel(FerChatDbContext context, ILogger<ChatRoomModel> logger) {
             _context = context;
             _logger = logger;
         }
