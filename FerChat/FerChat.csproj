@@ -37,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FerChat.Api.Contracts\FerChat.Api.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <TypeScriptCompile Include="wwwroot\js\chat.ts" />
   </ItemGroup>
 

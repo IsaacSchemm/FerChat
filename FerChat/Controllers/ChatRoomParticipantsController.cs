@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FerChat.Data;
-using FerChat.Models;
+using FerChat.Api.Contracts;
 
 namespace FerChat.Controllers {
     [ApiController]
@@ -19,15 +19,20 @@ namespace FerChat.Controllers {
 
         [HttpGet]
         [Route("api/rooms/{roomId}/participants")]
-        public async Task<ActionResult<IEnumerable<ChatRoomParticipant>>> GetChatRoomParticipants(Guid roomId) {
+        public async Task<ActionResult<IEnumerable<ExistingChatRoomParticipant>>> GetChatRoomParticipants(Guid roomId) {
             return await _context.ChatRoomParticipants
                 .Where(p => p.ChatRoomId == roomId)
+                .Select(p => new ExistingChatRoomParticipant {
+                    Id = p.Id,
+                    ChatRoomId = p.ChatRoomId,
+                    Name = p.Name
+                })
                 .ToListAsync();
         }
 
         [HttpGet]
         [Route("api/rooms/{roomId}/participants/{id}")]
-        public async Task<ActionResult<ChatRoomParticipant>> GetChatRoomParticipant(Guid roomId, Guid id) {
+        public async Task<ActionResult<ExistingChatRoomParticipant>> GetChatRoomParticipant(Guid roomId, Guid id) {
             var chatRoomParticipant = await _context.ChatRoomParticipants
                 .Where(p => p.ChatRoomId == roomId)
                 .Where(p => p.Id == id)
@@ -37,7 +42,11 @@ namespace FerChat.Controllers {
                 return NotFound();
             }
 
-            return chatRoomParticipant;
+            return new ExistingChatRoomParticipant {
+                Id = chatRoomParticipant.Id,
+                ChatRoomId = chatRoomParticipant.ChatRoomId,
+                Name = chatRoomParticipant.Name
+            };
         }
 
         [HttpPut]
@@ -60,8 +69,11 @@ namespace FerChat.Controllers {
 
         [HttpPost]
         [Route("api/rooms/{roomId}/participants")]
-        public async Task<ActionResult<ChatRoomParticipant>> PostChatRoomParticipant(Guid roomId, ChatRoomParticipant chatRoomParticipant) {
-            chatRoomParticipant.ChatRoomId = roomId;
+        public async Task<ActionResult<ExistingChatRoomParticipant>> PostChatRoomParticipant(Guid roomId, ChatRoomParticipant newProperties) {
+            var chatRoomParticipant = new Models.ChatRoomParticipant {
+                ChatRoomId = roomId,
+                Name = newProperties.Name
+            };
             _context.ChatRoomParticipants.Add(chatRoomParticipant);
             await _context.SaveChangesAsync();
 
@@ -70,7 +82,7 @@ namespace FerChat.Controllers {
 
         [HttpDelete]
         [Route("api/rooms/{roomId}/participants/{id}")]
-        public async Task<ActionResult<ChatRoomParticipant>> DeleteChatRoomParticipant(Guid roomId, Guid id) {
+        public async Task<ActionResult> DeleteChatRoomParticipant(Guid roomId, Guid id) {
             var chatRoomParticipant = await _context.ChatRoomParticipants
                 .Where(p => p.ChatRoomId == roomId)
                 .Where(p => p.Id == id)
@@ -83,7 +95,7 @@ namespace FerChat.Controllers {
             _context.ChatRoomParticipants.Remove(chatRoomParticipant);
             await _context.SaveChangesAsync();
 
-            return chatRoomParticipant;
+            return NoContent();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FerChat.Data;
-using FerChat.Models;
+using FerChat.Api.Contracts;
 
 namespace FerChat.Controllers {
     [ApiController]
@@ -19,47 +19,50 @@ namespace FerChat.Controllers {
 
         [HttpGet]
         [Route("api/rooms")]
-        public async Task<ActionResult<IEnumerable<ChatRoom>>> GetChatRooms() {
-            return await _context.ChatRooms.ToListAsync();
+        public async Task<ActionResult<IEnumerable<ExistingChatRoom>>> GetChatRooms() {
+            return await _context.ChatRooms
+                .Select(r => new ExistingChatRoom {
+                    Id = r.Id,
+                    Name = r.Name
+                }).ToListAsync();
         }
 
         [HttpGet]
         [Route("api/rooms/{id}")]
-        public async Task<ActionResult<ChatRoom>> GetChatRoom(Guid id) {
+        public async Task<ActionResult<ExistingChatRoom>> GetChatRoom(Guid id) {
             var chatRoom = await _context.ChatRooms.FindAsync(id);
 
             if (chatRoom == null) {
                 return NotFound();
             }
 
-            return chatRoom;
+            return new ExistingChatRoom {
+                Id = chatRoom.Id,
+                Name = chatRoom.Name
+            };
         }
 
         [HttpPut]
         [Route("api/rooms/{id}")]
-        public async Task<IActionResult> PutChatRoom(Guid id, ChatRoom chatRoom) {
-            if (id != chatRoom.Id) {
-                return BadRequest();
+        public async Task<IActionResult> PutChatRoom(Guid id, ChatRoom newProperties) {
+            var chatRoom = await _context.ChatRooms.FindAsync(id);
+
+            if (chatRoom == null) {
+                return NotFound();
             }
 
-            _context.Entry(chatRoom).State = EntityState.Modified;
-
-            try {
-                await _context.SaveChangesAsync();
-            } catch (DbUpdateConcurrencyException) {
-                if (!ChatRoomExists(id)) {
-                    return NotFound();
-                } else {
-                    throw;
-                }
-            }
+            chatRoom.Name = newProperties.Name;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpPost]
         [Route("api/rooms")]
-        public async Task<ActionResult<ChatRoom>> PostChatRoom(ChatRoom chatRoom) {
+        public async Task<ActionResult<ExistingChatRoom>> PostChatRoom(ChatRoom newProperties) {
+            var chatRoom = new Models.ChatRoom {
+                Name = newProperties.Name
+            };
             _context.ChatRooms.Add(chatRoom);
             await _context.SaveChangesAsync();
 
@@ -68,7 +71,7 @@ namespace FerChat.Controllers {
 
         [HttpDelete]
         [Route("api/rooms/{id}")]
-        public async Task<ActionResult<ChatRoom>> DeleteChatRoom(Guid id) {
+        public async Task<ActionResult> DeleteChatRoom(Guid id) {
             var chatRoom = await _context.ChatRooms.FindAsync(id);
             if (chatRoom == null) {
                 return NotFound();
@@ -77,11 +80,7 @@ namespace FerChat.Controllers {
             _context.ChatRooms.Remove(chatRoom);
             await _context.SaveChangesAsync();
 
-            return chatRoom;
-        }
-
-        private bool ChatRoomExists(Guid id) {
-            return _context.ChatRooms.Any(e => e.Id == id);
+            return NoContent();
         }
     }
 }
